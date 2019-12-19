@@ -4,6 +4,21 @@ const morgan = require('morgan')
 const cors = require('cors')
 const helmet = require('helmet')
 const {NODE_ENV} = require('./config')
+const winston = require('winston');
+
+// set up winston
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.File({filename: 'info.log'})
+    ]
+});
+if (NODE_ENV !== 'production') {
+    logger.add(new winston.transports.Console({
+        format: winston.format.simple()
+    }));
+}
 
 const app = express()
 
@@ -12,6 +27,17 @@ const morganOption = (NODE_ENV === 'production') ? 'tiny' : 'common';
 app.use(morgan(morganOption))
 app.use(helmet())
 app.use(cors())
+
+const cards = [{
+    id: 1, 
+    title: 'Task one',
+    content: 'This is card one'
+}];
+const lists = [{
+    id: 1, 
+    header: 'List One',
+    cardIds: [1]
+}];
 
 app.get('/', (req, res) => {
     res.send('Hello, world!')
